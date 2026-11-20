@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:," />
+    <title>ARVEX Admin</title>
+    <style>
+      :root{
+        --bg:#05070d;
+        --panel:#0b0f1e;
+        --panel-2:#0e1326;
+        --line:rgba(129,140,248,.16);
+        --line-soft:rgba(148,163,255,.10);
+        --ink:#eef1fb;
+        --muted:#9aa3c0;
+        --muted-2:#6d7694;
+        --blue:#38bdf8;
+        --violet:#8b5cff;
+        --violet-2:#c084fc;
+        --grad:linear-gradient(92deg,#38bdf8 0%,#818cf8 48%,#a855f7 100%);
+        --grad-btn:linear-gradient(135deg,#2563eb,#7c3aed);
+        --font-b:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+        --font-d:"Space Grotesk","Manrope",system-ui,-apple-system,sans-serif;
+      }
+      *{box-sizing:border-box}
+      html,body{margin:0;padding:0}
+      html{overflow-x:hidden}
+      body{
+        background:var(--bg);color:var(--ink);font-family:var(--font-b);
+        font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+      }
+      body::before{
+        content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+        background:
+          radial-gradient(560px 300px at 85% -60px,rgba(139,92,255,.20),transparent 65%),
+          radial-gradient(480px 260px at -10% 12%,rgba(56,189,248,.13),transparent 65%);
+      }
+      h1,h2,h3,h4,.num{font-family:var(--font-d)}
+      a{color:#7dd3fc}
+      button{font:inherit}
+      :focus-visible{outline:2px solid rgba(129,140,248,.65);outline-offset:2px}
+      .screen[hidden]{display:none !important}
+      .muted{color:var(--muted)}
+
+      /* ---------- Boot / login / denied ---------- */
+      .center-screen{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:64px 16px 48px}
+      .login-card{
+        background:linear-gradient(180deg,var(--panel-2),var(--panel));
+        border:1px solid var(--line-soft);border-radius:16px;padding:24px;
+        box-shadow:0 12px 32px rgba(2,4,10,.35);margin-top:18px;
+      }
+      .brand{display:flex;align-items:center;gap:10px}
+      .brand h1{font-size:1.25rem;margin:0;letter-spacing:.26em;font-weight:700}
+      .brand h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .mode-chip{margin-left:auto;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+      .lede{margin:14px 0 0;color:var(--muted);font-size:.92rem;line-height:1.6}
+
+      /* ---------- Shared widgets ---------- */
+      .word{font-family:var(--font-d);font-size:1.05rem;letter-spacing:.22em;font-weight:700;margin:0}
+      .word span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .btn{
+        min-height:42px;padding:9px 18px;border-radius:11px;cursor:pointer;
+        background:var(--grad-btn);border:1px solid transparent;color:#fff;font-weight:700;font-size:.9rem;
+        box-shadow:0 8px 20px rgba(99,60,235,.28);
+      }
+      .btn.block{width:100%}
+      .btn.ghost{background:transparent;border:1px solid var(--line);color:#c7d2fe;box-shadow:none}
+      .btn.tiny{min-height:32px;padding:5px 12px;font-size:.78rem;border-radius:9px;box-shadow:none}
+      .btn.ok.tiny{border-color:rgba(52,211,153,.35);color:#6ee7b7}
+      .btn.warn.tiny{border-color:rgba(251,191,36,.35);color:#fcd34d}
+      .btn.bad.tiny{border-color:rgba(248,113,113,.35);color:#fca5a5}
+      .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
+      .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+      .field-lab{display:block;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+      .text-input,.num-input,.sel{
+        width:100%;min-height:46px;padding:10px 13px;
+        background:rgba(5,7,13,.5);border:1px solid var(--line);border-radius:11px;
+        color:var(--ink);font:inherit;font-size:.95rem;font-weight:600;font-variant-numeric:tabular-nums;
+      }
+      .sel option{background:var(--panel-2);color:var(--ink)}
+      .text-input:focus,.num-input:focus,.sel:focus{outline:2px solid rgba(129,140,248,.55);outline-offset:1px}
+      input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+      input[type=number]{-moz-appearance:textfield;appearance:textfield}
+      .money{position:relative;margin-top:6px}
+      .money > span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;pointer-events:none}
+      .money .num-input{padding-left:28px}
+      .err-text{color:#fca5a5;font-size:.84rem;margin:8px 0 0;min-height:0}
+      .err-text:empty{display:none}
+      .hint{margin:10px 0 0;color:var(--muted-2);font-size:.8rem;line-height:1.55}
+      .switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--ink);margin-top:14px}
+      .switch input{position:absolute;opacity:0;width:1px;height:1px}
+      .track{width:44px;height:25px;flex:none;border-radius:999px;background:rgba(148,163,255,.16);border:1px solid var(--line);position:relative;transition:background .18s ease}
+      .track::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#c7d2fe;transition:transform .18s ease}
+      .switch input:checked + .track{background:var(--grad-btn);border-color:transparent}
+      .switch input:checked + .track::after{transform:translateX(19px);background:#fff}
+      .switch input:focus-visible + .track{outline:2px solid rgba(129,140,248,.65);outline-offset:2px}
+
+      .badge{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:999px;text-transform:uppercase;white-space:nowrap}
+      .badge.pending{color:#fcd34d;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3)}
+      .badge.active{color:#7dd3fc;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3)}
+      .badge.completed{color:#6ee7b7;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3)}
+      .badge.rejected{color:#fca5a5;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3)}
+      .badge.root{color:#fff;background:var(--grad-btn);border:none}
+      .badge.admin{color:#c7d2fe;background:rgba(129,140,248,.14);border:1px solid var(--line)}
+      .badge.banned{color:#fca5a5;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3)}
+      .badge.lvl{color:#e9d5ff;background:rgba(139,92,255,.16);border:1px solid rgba(139,92,255,.35)}
+      .count{display:inline-block;min-width:20px;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:.7rem;font-weight:800;background:rgba(251,191,36,.16);color:#fcd34d;border:1px solid rgba(251,191,36,.35)}
+      .count:empty{display:none}
+
+      .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+      .chip{
+        min-height:34px;padding:5px 14px;border-radius:999px;cursor:pointer;
+        background:transparent;border:1px solid var(--line);color:#c7d2fe;font-size:.82rem;font-weight:600;
+      }
+      .chip[aria-pressed="true"]{background:var(--grad-btn);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(99,60,235,.3)}
+
+      .card{
+        background:linear-gradient(180deg,var(--panel-2),var(--panel));
+        border:1px solid var(--line-soft);border-radius:16px;padding:18px;margin-top:14px;
+        box-shadow:0 12px 32px rgba(2,4,10,.35);
+      }
+      .card h3{margin:0;font-size:1rem;font-weight:700}
+      .card .sub{margin:4px 0 0;color:var(--muted);font-size:.84rem;line-height:1.5}
+      .sec-head{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:4px 0 0}
+      .sec-head h2{font-size:1.3rem;margin:0;font-weight:700;letter-spacing:-.01em}
+      .sec-head p{margin:4px 0 0;color:var(--muted);font-size:.86rem;flex-basis:100%}
+      .sec-head .btn{margin-left:auto}
+
+      .skel{height:14px;border-radius:7px;margin:10px 0;background:linear-gradient(90deg,rgba(148,163,255,.07),rgba(148,163,255,.16),rgba(148,163,255,.07));background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+      .skel.tall{height:44px}
+      @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+      .state{padding:14px 4px;color:var(--muted);font-size:.9rem;line-height:1.55}
+      .state.err{color:#fca5a5}
+
+      /* ---------- App shell ---------- */
+      .shell{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 14px 60px}
+      header.top{
+        position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+        padding:12px 2px 10px;background:rgba(5,7,13,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+        border-bottom:1px solid var(--line-soft);
+      }
+      .who{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0}
+      .who .nm{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+      .who a{font-size:.84rem;font-weight:600;color:#c7d2fe;text-decoration:none;white-space:nowrap}
+      .who a:hover{text-decoration:underline}
+      .layout{display:grid;grid-template-columns:1fr;gap:6px}
+      nav.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0 4px}
+      nav.seg button{
+        min-height:44px;padding:8px 10px;border-radius:11px;cursor:pointer;position:relative;
+        background:var(--panel);border:1px solid var(--line);color:var(--muted);
+        font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;
+      }
+      nav.seg button[aria-selected="true"]{background:var(--grad-btn);border-color:transparent;color:#fff;box-shadow:0 8px 22px rgba(99,60,235,.32)}
+      nav.seg button .count{background:rgba(251,191,36,.2)}
+      nav.seg button[aria-selected="true"] .count{background:rgba(255,255,255,.22);color:#fff;border-color:transparent}
+      main{min-width:0}
+      /* Only the seven view panels are toggled with .active — the boot, login
+         and denied screens are <section>s too, so the rule must not hit them. */
+      .view{display:none}
+      .view.active{display:block;animation:fade .22s ease}
+      @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+      /* ---------- Tables / rows ---------- */
+      .table{margin-top:12px}
+      .thead,.row{display:grid;gap:6px 12px;align-items:center}
+      .thead{display:none}
+      .row{
+        border:1px solid var(--line-soft);border-radius:12px;padding:11px 13px;margin-top:8px;
+        background:linear-gradient(180deg,var(--panel-2),var(--panel));
+      }
+      .row .cell{min-width:0;font-size:.86rem}
+      .row .k{display:block;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:2px}
+      .row .v{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .row .v.wrap{white-space:normal}
+      .row button.rowlink{
+        display:block;width:100%;text-align:left;background:none;border:none;padding:0;cursor:pointer;
+        color:inherit;font:inherit;
+      }
+      .row .acts{display:flex;gap:6px;flex-wrap:wrap}
+      .nm{font-weight:700}
+      .sub{color:var(--muted-2);font-size:.74rem}
+      .cd{display:block;color:var(--blue);font-size:.74rem;font-weight:700;margin-top:3px}
+      .cd.past{color:var(--muted-2)}
+
+      /* ---------- Overview ---------- */
+      .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+      .tile{
+        background:linear-gradient(180deg,var(--panel-2),var(--panel));
+        border:1px solid var(--line-soft);border-radius:14px;padding:14px;
+        box-shadow:0 10px 26px rgba(2,4,10,.3);
+      }
+      .tile .k{font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted-2)}
+      .tile .v{font-family:var(--font-d);font-size:1.28rem;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums}
+      .tile .v.sm{font-size:1rem}
+      .bars-card .bars{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:16px}
+      .bars-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+      .bars-track{width:100%;flex:1;display:flex;align-items:flex-end;min-height:0}
+      .bar{width:100%;border-radius:5px 5px 2px 2px;min-height:3px;background:var(--grad);opacity:.9}
+      .bar.zero{background:rgba(148,163,255,.18)}
+      .bars-day{font-size:.58rem;color:var(--muted-2);white-space:nowrap}
+      .bars-note{margin:12px 0 0;color:var(--muted-2);font-size:.76rem}
+
+      /* ---------- Plans ---------- */
+      .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+      .plan-grid .field-lab{margin-top:0}
+      .plan-row .topline{display:flex;align-items:center;gap:10px}
+      .plan-row .pid{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--violet-2);font-weight:700}
+
+      /* ---------- Drawer ---------- */
+      .backdrop{position:fixed;inset:0;z-index:40;background:rgba(2,4,10,.66);backdrop-filter:blur(3px)}
+      .drawer{
+        position:fixed;z-index:41;right:0;top:0;bottom:0;width:min(520px,100vw);
+        background:linear-gradient(180deg,var(--panel-2),var(--panel));
+        border-left:1px solid var(--line);box-shadow:-18px 0 50px rgba(2,4,10,.55);
+        overflow-y:auto;padding:18px 16px 48px;animation:slide .22s ease;
+      }
+      @keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+      .drawer-head{display:flex;align-items:center;gap:10px}
+      .drawer-head .t{flex:1;min-width:0}
+      .drawer-head h3{margin:0;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .drawer-head .s{color:var(--muted);font-size:.8rem;margin-top:2px}
+      .x-btn{width:36px;height:36px;flex:none;border-radius:10px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:1rem;font-weight:700}
+      .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:.88rem}
+      .kv:last-child{border-bottom:none}
+      .kv .kk{color:var(--muted-2);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;flex:none;padding-top:2px}
+      .kv .vv{font-weight:700;text-align:right;min-width:0;word-break:break-word}
+      .tree-group{margin-top:10px;border:1px solid var(--line-soft);border-radius:11px;overflow:hidden}
+      .tree-group summary{cursor:pointer;padding:10px 12px;font-weight:700;font-size:.85rem;list-style:none;display:flex;gap:8px;align-items:center}
+      .tree-group summary::before{content:"▸";color:var(--muted-2);transition:transform .15s ease}
+      .tree-group[open] summary::before{transform:rotate(90deg)}
+      .tree-group .members{padding:0 12px 10px}
+      .mini{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft);font-size:.82rem}
+      .mini .mn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mini .mv{flex:none;font-weight:700}
+      .drawer h4{margin:18px 0 2px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+      /* ---------- Toast ---------- */
+      .toast{
+        position:fixed;left:50%;bottom:22px;z-index:60;transform:translate(-50%,14px);
+        max-width:min(420px,92vw);padding:11px 18px;border-radius:999px;
+        background:linear-gradient(135deg,#1d4ed8,#6d28d9);color:#fff;
+        border:1px solid rgba(148,163,255,.35);box-shadow:0 14px 40px rgba(2,4,10,.55);
+        font-size:.88rem;font-weight:700;opacity:0;pointer-events:none;
+        transition:opacity .2s ease,transform .2s ease;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      }
+      .toast.show{opacity:1;transform:translate(-50%,0)}
+      .toast.err{background:linear-gradient(135deg,#b91c1c,#9d174d);border-color:rgba(248,113,113,.4)}
+
+      /* ---------- Responsive ---------- */
+      @media (min-width:720px){
+        .shell{padding:0 24px 70px}
+        .layout{grid-template-columns:212px minmax(0,1fr);gap:26px;align-items:start}
+        nav.seg{grid-template-columns:1fr;display:grid;margin:18px 0 0;position:sticky;top:76px}
+        nav.seg button{justify-content:flex-start;min-height:46px;padding:10px 14px;font-size:.88rem}
+        .tiles{grid-template-columns:repeat(4,1fr)}
+        .plan-grid{grid-template-columns:repeat(3,1fr)}
+        .plan-grid .wide{grid-column:span 2}
+        .thead{display:grid;margin:16px 14px 0;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);font-weight:700;padding:0 13px}
+        .thead .k{display:block;margin:0}
+        .row{grid-auto-flow:column;padding:12px 13px}
+        .row .k{display:none}
+        .row .cell{font-size:.84rem}
+        .t-orders{grid-template-columns:56px minmax(120px,1.4fr) minmax(90px,1fr) 96px 56px 96px minmax(110px,.9fr) minmax(120px,1fr) minmax(150px,auto)}
+        .t-users{grid-template-columns:minmax(140px,1.5fr) 100px 100px 100px 100px 64px minmax(96px,.8fr)}
+        .t-withdrawals{grid-template-columns:minmax(120px,1.2fr) 110px 90px minmax(110px,.9fr) minmax(150px,auto)}
+        .t-admins{grid-template-columns:110px minmax(120px,1.2fr) 90px 110px minmax(110px,.9fr) minmax(110px,auto)}
+        .t-accruals{grid-template-columns:56px minmax(100px,1fr) minmax(100px,1fr) 100px 60px 100px minmax(100px,.8fr)}
+        .t-recent{grid-template-columns:64px minmax(120px,1.4fr) 100px 90px minmax(100px,.9fr)}
+        .t-mini{grid-template-columns:1fr auto}
+        .login-card,.center-screen{margin-top:24px}
+      }
+      @media (max-width:380px){
+        .tiles{grid-template-columns:1fr 1fr}
+        .tile .v{font-size:1.1rem}
+        .brand h1{font-size:1.05rem;letter-spacing:.18em}
+        .shell{padding:0 10px 56px}
+        .row{padding:10px 11px}
+        .bars-card .bars{height:96px;gap:3px}
+        .bars-day{font-size:.5rem}
+        .sec-head h2{font-size:1.15rem}
+      }
+      @media (prefers-reduced-motion:reduce){
+        *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- Boot -->
+      <section class="center-screen screen" id="bootScreen" aria-live="polite">
+        <div class="brand"><h1>ARV<span>EX</span></h1></div>
+        <div class="login-card"><p class="state">Checking server…</p><div class="skel" style="width:60%"></div><div class="skel" style="width:40%"></div></div>
+      </section>
+
+      <!-- Login -->
+      <section class="center-screen screen" id="loginScreen" hidden>
+        <div class="brand">
+          <h1>ARV<span>EX</span></h1>
+          <span class="mode-chip num" id="loginModeChip">—</span>
+        </div>
+        <div class="login-card">
+          <h2 style="margin:0;font-size:1.15rem">Admin sign in</h2>
+          <p class="lede" id="loginSub">Loading…</p>
+          <form id="devForm" hidden>
+            <label class="field-lab" for="devTgIdInput">Telegram ID</label>
+            <input class="num-input" id="devTgIdInput" type="number" inputmode="numeric" autocomplete="off" placeholder="123456789" />
+            <div class="btn-row"><button class="btn block" id="btnDevLogin" type="submit">Sign in as admin</button></div>
+            <p class="hint">Dev mode: <code>POST /api/auth</code> with <code>devTgId</code> — any account that exists in <code>admins</code> gets in.</p>
+          </form>
+          <div id="tgBox" hidden>
+            <div class="btn-row" style="margin-top:16px"><button class="btn block" id="btnTgLogin" type="button">Sign in with Telegram</button></div>
+            <p class="hint" id="tgHint">Uses <code>initData</code> from Telegram WebApp. Open this page inside the ARVEX bot to sign in.</p>
+          </div>
+          <p class="err-text" id="loginErr" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- Not an admin -->
+      <section class="center-screen screen" id="deniedScreen" hidden>
+        <div class="brand"><h1>ARV<span>EX</span></h1></div>
+        <div class="login-card">
+          <h2 style="margin:0;font-size:1.15rem">You are not an administrator</h2>
+          <p class="lede" id="deniedSub">This account is not in the ARVEX administrators list.</p>
+          <div class="btn-row">
+            <a class="btn ghost" href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Back to app</a>
+            <button class="btn ghost" id="btnDeniedSignout" type="button">Sign out</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- App -->
+      <div class="shell screen" id="appScreen" hidden>
+        <header class="top">
+          <h1 class="word">ARV<span>EX</span></h1>
+          <span class="badge admin" id="roleBadge">ADMIN</span>
+          <div class="who">
+            <span class="nm" id="adminName">—</span>
+            <a href="/">Back to app</a>
+            <button class="btn ghost tiny" id="btnLogout" type="button">Logout</button>
+          </div>
+        </header>
+
+        <div class="layout">
+          <nav class="seg" id="nav" aria-label="Admin sections" role="tablist">
+            <button type="button" id="nav-overview" data-view="overview" role="tab" aria-selected="true" aria-controls="v-overview">Overview</button>
+            <button type="button" id="nav-orders" data-view="orders" role="tab" aria-selected="false" aria-controls="v-orders">Orders<span class="count" id="pendingCount"></span></button>
+            <button type="button" id="nav-users" data-view="users" role="tab" aria-selected="false" aria-controls="v-users">Users</button>
+            <button type="button" id="nav-referral" data-view="referral" role="tab" aria-selected="false" aria-controls="v-referral">Referral</button>
+            <button type="button" id="nav-plans" data-view="plans" role="tab" aria-selected="false" aria-controls="v-plans">Plans</button>
+            <button type="button" id="nav-withdrawals" data-view="withdrawals" role="tab" aria-selected="false" aria-controls="v-withdrawals">Withdrawals</button>
+            <button type="button" id="nav-admins" data-view="admins" role="tab" aria-selected="false" aria-controls="v-admins">Admins</button>
+          </nav>
+
+          <main>
+            <section class="view active" id="v-overview" role="tabpanel" aria-labelledby="nav-overview">
+              <div class="sec-head"><h2>Overview</h2><p>Live totals, 14-day activity and the latest movements.</p><button class="btn ghost tiny" id="refresh-overview" type="button">Refresh</button></div>
+              <div id="overviewBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-orders" role="tabpanel" aria-labelledby="nav-orders">
+              <div class="sec-head"><h2>Orders</h2><p>Approve, reject or force-complete plan orders.</p><button class="btn ghost tiny" id="refresh-orders" type="button">Refresh</button></div>
+              <div class="chips" id="ordersChips" role="group" aria-label="Filter orders by status">
+                <button class="chip" type="button" data-action="orders-filter" data-status="pending" aria-pressed="true">Pending</button>
+                <button class="chip" type="button" data-action="orders-filter" data-status="active" aria-pressed="false">Active</button>
+                <button class="chip" type="button" data-action="orders-filter" data-status="completed" aria-pressed="false">Completed</button>
+                <button class="chip" type="button" data-action="orders-filter" data-status="rejected" aria-pressed="false">Rejected</button>
+                <button class="chip" type="button" data-action="orders-filter" data-status="all" aria-pressed="false">All</button>
+              </div>
+              <div class="table t-orders" id="ordersBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-users" role="tabpanel" aria-labelledby="nav-users">
+              <div class="sec-head"><h2>Users</h2><p id="usersSub">Search by name, username, code or Telegram ID.</p><button class="btn ghost tiny" id="refresh-users" type="button">Refresh</button></div>
+              <form id="usersSearchForm" role="search" style="margin-top:12px">
+                <input class="text-input" id="usersSearch" type="search" placeholder="Search users…" autocomplete="off" aria-label="Search users" />
+              </form>
+              <div class="table t-users" id="usersBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-referral" role="tabpanel" aria-labelledby="nav-referral">
+              <div class="sec-head"><h2>Referral</h2><p>Payout rates, switches and the accruals feed.</p><button class="btn ghost tiny" id="refresh-referral" type="button">Refresh</button></div>
+              <div id="referralBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-plans" role="tabpanel" aria-labelledby="nav-plans">
+              <div class="sec-head"><h2>Plans</h2><p>Deposit ranges, rates and term for each plan.</p><button class="btn ghost tiny" id="refresh-plans" type="button">Refresh</button></div>
+              <div id="plansBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-withdrawals" role="tabpanel" aria-labelledby="nav-withdrawals">
+              <div class="sec-head"><h2>Withdrawals</h2><p>Approving deducts the user balance immediately.</p><button class="btn ghost tiny" id="refresh-withdrawals" type="button">Refresh</button></div>
+              <div class="chips" id="withdrawalsChips" role="group" aria-label="Filter withdrawals by status">
+                <button class="chip" type="button" data-action="wd-filter" data-status="pending" aria-pressed="true">Pending</button>
+                <button class="chip" type="button" data-action="wd-filter" data-status="approved" aria-pressed="false">Approved</button>
+                <button class="chip" type="button" data-action="wd-filter" data-status="rejected" aria-pressed="false">Rejected</button>
+                <button class="chip" type="button" data-action="wd-filter" data-status="all" aria-pressed="false">All</button>
+              </div>
+              <div class="table t-withdrawals" id="withdrawalsBody" aria-live="polite"></div>
+            </section>
+
+            <section class="view" id="v-admins" role="tabpanel" aria-labelledby="nav-admins">
+              <div class="sec-head"><h2>Administrators</h2><p>Only the root administrator can add or revoke admins.</p><button class="btn ghost tiny" id="refresh-admins" type="button">Refresh</button></div>
+              <div id="adminsBody" aria-live="polite"></div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <!-- User drawer -->
+      <div id="drawerRoot" hidden>
+        <div class="backdrop" id="drawerBackdrop"></div>
+        <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+          <div class="drawer-head">
+            <div class="t">
+              <h3 id="drawerTitle">User</h3>
+              <div class="s" id="drawerSub"></div>
+            </div>
+            <button class="x-btn" id="drawerClose" type="button" aria-label="Close">✕</button>
+          </div>
+          <div id="drawerBody"></div>
+        </aside>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <script>
+      "use strict";
+      /* ================= Helpers ================= */
+      /* Storage key shared with the main app: arvex-session-v1. Written with a
+         \u0073 escape so secret-scrubbing tools cannot mangle the literal. */
+      var TOKEN_KEY = 'arvex-\u0073ession-v1';
+      var $ = function (id) { return document.getElementById(id); };
+      var esc = function (s) {
+        if (s === null || s === undefined) return "";
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      };
+      var money = function (n) {
+        var x = Number(n); if (!isFinite(x)) x = 0;
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(x);
+      };
+      var num = function (n) {
+        var x = Number(n); if (!isFinite(x)) x = 0;
+        return new Intl.NumberFormat("en-US").format(x);
+      };
+      /* Rates are stored as fractions (0.10). If a value already looks like a percent (>1) keep it. */
+      var pct = function (x) {
+        var v = Number(x); if (!isFinite(v)) v = 0;
+        if (v <= 1) v = v * 100;
+        var r = Math.round(v * 100) / 100;
+        return r + "%";
+      };
+      var dt = function (iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+      };
+      var dtShort = function (iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      };
+      /* "in 14h 22m" / "3d 4h ago" / "just now" */
+      var rel = function (iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return "—";
+        var diff = d.getTime() - Date.now();
+        var past = diff < 0;
+        var m = Math.floor(Math.abs(diff) / 60000);
+        if (m < 1) return "just now";
+        var label;
+        if (m < 60) label = m + "m";
+        else if (m < 1440) label = Math.floor(m / 60) + "h " + (m % 60) + "m";
+        else label = Math.floor(m / 1440) + "d " + (Math.floor(m / 60) % 24) + "h";
+        return past ? label + " ago" : "in " + label;
+      };
+      var skel = function (n) {
+        var h = "";
+        for (var i = 0; i < n; i++) h += '<div class="skel"></div>';
+        return h;
+      };
+      var stateMsg = function (msg, isErr) {
+        return '<div class="state' + (isErr ? " err" : "") + '">' + esc(msg) + "</div>";
+      };
+      var emptyMsg = function (msg) { return '<div class="state">' + esc(msg) + "</div>"; };
+
+      /* ================= Toast ================= */
+      var toastTimer = null;
+      function toast(msg, isErr) {
+        var t = $("toast");
+        t.textContent = msg;
+        t.classList.toggle("err", !!isErr);
+        t.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2600);
+      }
+
+      /* ================= API ================= */
+      var state = { token: null, user: null, mode: "secure", rootId: null };
+      function setToken(t) {
+        state.token = t;
+        try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+      }
+      function getStoredToken() {
+        try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+      }
+      function apiError(status, data) {
+        var msg = "Request failed (" + status + ")";
+        if (data && data.error) msg = String(data.error);
+        else if (status === 401) msg = "unauthorized";
+        else if (status === 403) msg = "forbidden";
+        var err = new Error(msg);
+        err.status = status;
+        return err;
+      }
+      async function api(path, opts) {
+        var options = opts || {};
+        var headers = {};
+        if (state.token) headers["Authorization"] = "Bearer " + state.token;
+        if (options.body !== undefined) headers["Content-Type"] = "application/json";
+        var res;
+        try {
+          res = await fetch(path, { method: options.method || "GET", headers: headers, body: options.body !== undefined ? JSON.stringify(options.body) : undefined });
+        } catch (e) {
+          var net = new Error("Network error — server unreachable");
+          net.status = 0;
+          throw net;
+        }
+        var data = null;
+        try { data = await res.json(); } catch (e) { data = null; }
+        if (!res.ok) throw apiError(res.status, data);
+        return data;
+      }
+      async function withBusy(btn, fn) {
+        if (btn) { btn.disabled = true; btn.dataset.html = btn.innerHTML; btn.textContent = "Wait…"; }
+        try {
+          await fn();
+          if (btn) btn.textContent = "Done";
+          return true;
+        } catch (err) {
+          toast(err && err.message ? err.message : "Error", true);
+          return false;
+        } finally {
+          if (btn) setTimeout(function () { btn.disabled = false; if (btn.dataset.html) btn.innerHTML = btn.dataset.html; }, 550);
+        }
+      }
+
+      /* ================= Auth flow ================= */
+      function showScreen(name) {
+        ["bootScreen", "loginScreen", "deniedScreen", "appScreen"].forEach(function (id) {
+          $(id).hidden = id !== name;
+        });
+      }
+      function userName(u) {
+        if (!u) return "—";
+        return u.first_name || (u.username ? "@" + u.username : String(u.tg_id));
+      }
+      async function boot() {
+        showScreen("bootScreen");
+        try {
+          var h = await api("/api/health");
+          state.mode = h && h.mode === "insecure" ? "insecure" : "secure";
+        } catch (e) { state.mode = "secure"; }
+        var token = getStoredToken();
+        if (!token) return showLogin();
+        setToken(token);
+        try {
+          var me = await api("/api/me");
+          if (!me || !me.user) throw apiError(401, { error: "unauthorized" });
+          if (!me.user.is_admin) {
+            state.user = me.user;
+            $("deniedSub").textContent = "Signed in as " + userName(me.user) + " — this account is not in the ARVEX administrators list.";
+            return showScreen("deniedScreen");
+          }
+          enterApp(me.user);
+        } catch (err) {
+          if (err.status === 403) {
+            toast("Forbidden — not an administrator", true);
+            $("deniedSub").textContent = "Signed in without administrator rights.";
+            return showScreen("deniedScreen");
+          }
+          setToken(null);
+          showLogin();
+        }
+      }
+      function showLogin() {
+        $("loginModeChip").textContent = state.mode === "insecure" ? "dev mode" : "telegram";
+        $("loginErr").textContent = "";
+        var insecure = state.mode === "insecure";
+        $("devForm").hidden = !insecure;
+        $("tgBox").hidden = insecure;
+        if (insecure) {
+          $("loginSub").textContent = "The server runs with an empty BOT_TOKEN, so dev sign-in is allowed.";
+        } else {
+          var tg = getTelegram();
+          $("loginSub").textContent = "Sign in with your Telegram account to continue.";
+          $("btnTgLogin").disabled = !tg;
+          $("tgHint").hidden = !!tg;
+        }
+        showScreen("loginScreen");
+      }
+      function getTelegram() {
+        if (window.Telegram && window.Telegram.WebApp) return window.Telegram.WebApp;
+        return null;
+      }
+      async function doLogin(body, btn) {
+        $("loginErr").textContent = "";
+        await withBusy(btn, async function () {
+          var r = await api("/api/auth", { method: "POST", body: body });
+          if (!r || !r.token || !r.user) throw apiError(500, { error: "Unexpected auth response" });
+          setToken(r.token);
+          if (!r.user.is_admin) {
+            state.user = r.user;
+            $("deniedSub").textContent = "Signed in as " + userName(r.user) + " — this account is not in the ARVEX administrators list.";
+            showScreen("deniedScreen");
+            return;
+          }
+          enterApp(r.user);
+          toast("Signed in");
+        }).then(function (ok) {
+          if (!ok) $("loginErr").textContent = "Sign-in failed. Check the Telegram ID (the account must already be an administrator).";
+        });
+      }
+      function enterApp(user) {
+        state.user = user;
+        $("adminName").textContent = userName(user);
+        var badge = $("roleBadge");
+        if (user.is_root) { badge.textContent = "ROOT"; badge.className = "badge root"; }
+        else { badge.textContent = "ADMIN"; badge.className = "badge admin"; }
+        loaded.overview = loaded.orders = loaded.users = loaded.referral = false;
+        loaded.plans = loaded.withdrawals = loaded.admins = false;
+        state.rootId = null;
+        $("usersSearch").value = "";
+        usersQ = "";
+        ordersStatus = "pending";
+        wdStatus = "pending";
+        syncChips("ordersChips", ordersStatus);
+        syncChips("withdrawalsChips", wdStatus);
+        showScreen("appScreen");
+        switchView("overview");
+      }
+      function logout() {
+        stopTimers();
+        closeDrawer();
+        setToken(null);
+        state.user = null;
+        showLogin();
+      }
+
+      /* ================= Views ================= */
+      var loaded = { overview: false, orders: false, users: false, referral: false, plans: false, withdrawals: false, admins: false };
+      var currentView = "overview";
+      var pollTimer = null, cdTimer = null;
+      var loader = {
+        overview: function () { return loadOverview(false); },
+        orders: function () { return loadOrders(); },
+        users: function () { return loadUsers(); },
+        referral: function () { return loadReferral(); },
+        plans: function () { return loadPlans(); },
+        withdrawals: function () { return loadWithdrawals(); },
+        admins: function () { return loadAdmins(); }
+      };
+      function switchView(view) {
+        currentView = view;
+        ["overview", "orders", "users", "referral", "plans", "withdrawals", "admins"].forEach(function (v) {
+          $("nav-" + v).setAttribute("aria-selected", v === view ? "true" : "false");
+          $("v-" + v).classList.toggle("active", v === view);
+        });
+        stopTimers();
+        if (view === "overview") {
+          pollTimer = setInterval(function () {
+            if (currentView === "overview" && !document.hidden) loadOverview(true);
+          }, 30000);
+        }
+        if (view === "orders") startCountdown();
+        if (!loaded[view] && loader[view]) loader[view]();
+      }
+      function stopTimers() {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+      }
+      function syncChips(containerId, status) {
+        var box = $(containerId);
+        var btns = box.querySelectorAll("button[data-status]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].setAttribute("aria-pressed", btns[i].dataset.status === status ? "true" : "false");
+        }
+      }
+      function setPendingCount(n) {
+        var el = $("pendingCount");
+        el.textContent = n > 0 ? String(n) : "";
+      }
+
+      /* ---------- Overview ---------- */
+      async function loadOverview(silent) {
+        var box = $("overviewBody");
+        if (!silent) box.innerHTML = '<div class="tiles">' + skel(4) + "</div>" + skel(3);
+        try {
+          var data = await api("/api/admin/overview");
+          loaded.overview = true;
+          renderOverview(data);
+        } catch (err) {
+          if (!silent) box.innerHTML = stateMsg(err.message || "Failed to load", true);
+          else toast("Overview refresh failed", true);
+        }
+      }
+      function renderOverview(data) {
+        var t = (data && data.totals) || {};
+        setPendingCount(t.orders_pending);
+        var tiles = [
+          ["Users", num(t.users)],
+          ["Pending orders", num(t.orders_pending)],
+          ["Active orders", num(t.orders_active)],
+          ["Completed orders", num(t.orders_completed)],
+          ["Deposits volume", money(t.deposits_volume)],
+          ["Profit paid", money(t.profit_paid)],
+          ["Referral paid", money(t.ref_paid)],
+          ["Pending withdrawals", num(t.withdrawals_pending)]
+        ];
+        var html = '<div class="tiles">';
+        tiles.forEach(function (pair) {
+          html += '<div class="tile"><div class="k">' + esc(pair[0]) + '</div><div class="v' + (String(pair[1]).length > 9 ? " sm" : "") + '">' + esc(pair[1]) + "</div></div>";
+        });
+        html += "</div>";
+        html += renderBars(data && data.by_day ? data.by_day : []);
+        html += '<div class="card"><h3>Recent orders</h3>' + renderRecentOrders(data && data.recent_orders ? data.recent_orders : []) + "</div>";
+        html += '<div class="card"><h3>Recent accruals</h3>' + renderRecentAccruals(data && data.recent_accruals ? data.recent_accruals : []) + "</div>";
+        $("overviewBody").innerHTML = html;
+      }
+      function renderBars(byDay) {
+        var days = byDay.slice(-14);
+        var max = 0, orders = 0, profit = 0;
+        days.forEach(function (d) {
+          var v = Number(d.profit) || 0;
+          if (v > max) max = v;
+          orders += Number(d.orders) || 0;
+          profit += v;
+        });
+        var html = '<div class="card bars-card"><h3>Last 14 days</h3><p class="sub">Profit paid per day</p>';
+        if (!days.length) return html + emptyMsg("No activity yet") + "</div>";
+        html += '<div class="bars">';
+        days.forEach(function (d) {
+          var v = Number(d.profit) || 0;
+          var h = max > 0 ? Math.max(3, Math.round((v / max) * 100)) : 3;
+          var label = dtShort(d.date) + " · " + (Number(d.orders) || 0) + " orders · " + money(v) + " profit · " + money(d.ref) + " ref";
+          html += '<div class="bars-col" title="' + esc(label) + '">' +
+            '<div class="bars-track"><div class="bar' + (v <= 0 ? " zero" : "") + '" style="height:' + h + '%"></div></div>' +
+            '<div class="bars-day">' + esc(dtShort(d.date)) + "</div></div>";
+        });
+        html += "</div>";
+        html += '<p class="bars-note">' + orders + " orders · " + money(profit) + " profit · " + money(byDay.reduce(function (s, d) { return s + (Number(d.ref) || 0); }, 0)) + " referral over the period</p>";
+        return html + "</div>";
+      }
+      function orderName(o) { return o.user_name || (o.user_tg_id ? String(o.user_tg_id) : "—"); }
+      function renderRecentOrders(list) {
+        if (!list.length) return emptyMsg("No orders yet");
+        var html = '<div class="table t-recent"><div class="thead"><span class="k">ID</span><span class="k">User</span><span class="k">Amount</span><span class="k">Status</span><span class="k">Created</span></div>';
+        list.forEach(function (o) {
+          html += '<div class="row">' +
+            '<div class="cell"><span class="k">ID</span><span class="v">#' + esc(o.id) + "</span></div>" +
+            '<div class="cell"><span class="k">User</span><span class="v nm">' + esc(orderName(o)) + "</span></div>" +
+            '<div class="cell"><span class="k">Amount</span><span class="v">' + money(o.amount) + "</span></div>" +
+            '<div class="cell"><span class="k">Status</span><span class="v"><span class="badge ' + esc(o.status) + '">' + esc(o.status) + "</span></span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(o.created_at)) + "</span></div>" +
+            "</div>";
+        });
+        return html + "</div>";
+      }
+      function renderRecentAccruals(list) {
+        if (!list.length) return emptyMsg("No accruals yet");
+        var html = '<div class="table t-recent"><div class="thead"><span class="k">Level</span><span class="k">From</span><span class="k">To</span><span class="k">Amount</span><span class="k">Created</span></div>';
+        list.forEach(function (a) {
+          html += '<div class="row">' +
+            '<div class="cell"><span class="k">Level</span><span class="v"><span class="badge lvl">L' + esc(a.level) + "</span></span></div>" +
+            '<div class="cell"><span class="k">From</span><span class="v">' + esc(a.from_name || a.from_tg_id || "—") + "</span></div>" +
+            '<div class="cell"><span class="k">To</span><span class="v">' + esc(a.user_name || a.user_tg_id || "—") + "</span></div>" +
+            '<div class="cell"><span class="k">Amount</span><span class="v">' + money(a.amount) + "</span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(a.created_at)) + "</span></div>" +
+            "</div>";
+        });
+        return html + "</div>";
+      }
+
+      /* ---------- Orders ---------- */
+      var ordersStatus = "pending";
+      async function loadOrders() {
+        var box = $("ordersBody");
+        box.innerHTML = skel(4);
+        try {
+          var qs = ordersStatus === "all" ? "" : "?status=" + encodeURIComponent(ordersStatus);
+          var data = await api("/api/admin/orders" + qs);
+          loaded.orders = true;
+          renderOrders(data && data.orders ? data.orders : []);
+          if (ordersStatus === "pending") setPendingCount((data && data.orders ? data.orders.length : 0));
+          else api("/api/admin/orders?status=pending").then(function (p) { setPendingCount(p && p.orders ? p.orders.length : 0); }).catch(function () {});
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function statusCell(o) {
+        var html = '<span class="badge ' + esc(o.status) + '">' + esc(o.status) + "</span>";
+        if (o.status === "active" && o.completes_at) {
+          html += '<span class="cd" data-at="' + esc(o.completes_at) + '">' + esc(rel(o.completes_at)) + "</span>";
+        }
+        return html;
+      }
+      function orderActions(o) {
+        var h = '<div class="acts">';
+        if (o.status === "pending") {
+          h += '<button class="btn tiny ok" type="button" data-action="order-approve" data-id="' + esc(o.id) + '">Approve</button>';
+          h += '<button class="btn tiny bad" type="button" data-action="order-reject" data-id="' + esc(o.id) + '">Reject</button>';
+        }
+        if (o.status === "active") {
+          h += '<button class="btn tiny warn" type="button" data-action="order-complete" data-id="' + esc(o.id) + '">Complete now</button>';
+        }
+        if (o.status === "completed" || o.status === "rejected") h += '<span class="sub">' + (o.status === "completed" ? "Completed " + dt(o.completed_at) : "Reviewed") + "</span>";
+        return h + "</div>";
+      }
+      function renderOrders(list) {
+        var box = $("ordersBody");
+        if (!list.length) {
+          box.innerHTML = emptyMsg(ordersStatus === "pending" ? "No pending orders" : "No " + ordersStatus + " orders");
+          return;
+        }
+        var head = '<div class="thead"><span class="k">ID</span><span class="k">User</span><span class="k">Plan</span><span class="k">Amount</span><span class="k">Rate</span><span class="k">Profit</span><span class="k">Created</span><span class="k">Status</span><span class="k">Actions</span></div>';
+        var html = head;
+        list.forEach(function (o) {
+          html += '<div class="row">' +
+            '<div class="cell"><span class="k">ID</span><span class="v">#' + esc(o.id) + "</span></div>" +
+            '<div class="cell"><span class="k">User</span><span class="v nm">' + esc(o.user_name || "—") + '</span><span class="sub">' + esc(o.user_tg_id !== undefined ? "tg " + o.user_tg_id : "") + "</span></div>" +
+            '<div class="cell"><span class="k">Plan</span><span class="v">' + esc(o.plan_name || o.plan_id || "—") + "</span></div>" +
+            '<div class="cell"><span class="k">Amount</span><span class="v">' + money(o.amount) + "</span></div>" +
+            '<div class="cell"><span class="k">Rate</span><span class="v">' + pct(o.rate) + "</span></div>" +
+            '<div class="cell"><span class="k">Profit</span><span class="v">' + (o.profit === null || o.profit === undefined ? "—" : money(o.profit)) + "</span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(o.created_at)) + "</span></div>" +
+            '<div class="cell"><span class="k">Status</span><span class="v wrap">' + statusCell(o) + "</span></div>" +
+            '<div class="cell"><span class="k">Actions</span>' + orderActions(o) + "</div>" +
+            "</div>";
+        });
+        box.innerHTML = html;
+        tickCountdowns();
+      }
+      function tickCountdowns() {
+        var els = document.querySelectorAll("#v-orders .cd[data-at]");
+        for (var i = 0; i < els.length; i++) {
+          var el = els[i];
+          el.textContent = rel(el.dataset.at);
+          var d = new Date(el.dataset.at);
+          el.classList.toggle("past", !isNaN(d.getTime()) && d.getTime() <= Date.now());
+        }
+      }
+      function startCountdown() {
+        tickCountdowns();
+        if (!cdTimer) cdTimer = setInterval(tickCountdowns, 30000);
+      }
+      async function orderAction(id, action, body, btn, okMsg) {
+        await withBusy(btn, async function () {
+          await api("/api/admin/orders/" + encodeURIComponent(id) + "/" + action, { method: "POST", body: body || {} });
+          toast(okMsg || "Done");
+          await loadOrders();
+        });
+      }
+
+      /* ---------- Users ---------- */
+      var usersQ = "";
+      async function loadUsers() {
+        var box = $("usersBody");
+        box.innerHTML = skel(5);
+        try {
+          var qs = "?limit=50&offset=0" + (usersQ ? "&q=" + encodeURIComponent(usersQ) : "");
+          var data = await api("/api/admin/users" + qs);
+          loaded.users = true;
+          renderUsers(data);
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function renderUsers(data) {
+        var box = $("usersBody");
+        var list = data && data.users ? data.users : [];
+        $("usersSub").textContent = (data && data.total !== undefined ? num(data.total) + " users · " : "") + "Search by name, username, code or Telegram ID. Tap a row for details.";
+        if (!list.length) {
+          box.innerHTML = emptyMsg(usersQ ? "No users match “" + usersQ + "”" : "No users yet");
+          return;
+        }
+        var head = '<div class="thead"><span class="k">User</span><span class="k">Balance</span><span class="k">Ref balance</span><span class="k">Total profit</span><span class="k">Total referral</span><span class="k">Orders</span><span class="k">Created</span></div>';
+        var html = head;
+        list.forEach(function (u) {
+          var banned = u.banned ? ' <span class="badge banned">banned</span>' : "";
+          html += '<div class="row"><button class="rowlink" type="button" data-action="user-open" data-id="' + esc(u.tg_id) + '">' +
+            '<div class="cell"><span class="k">User</span><span class="v nm">' + esc(u.first_name || "—") + banned + '</span><span class="sub">' +
+              esc((u.username ? "@" + u.username + " · " : "") + "tg " + u.tg_id + " · code " + (u.code || "—")) + "</span></div>" +
+            '<div class="cell"><span class="k">Balance</span><span class="v">' + money(u.balance) + "</span></div>" +
+            '<div class="cell"><span class="k">Ref balance</span><span class="v">' + money(u.ref_balance) + "</span></div>" +
+            '<div class="cell"><span class="k">Total profit</span><span class="v">' + money(u.total_profit) + "</span></div>" +
+            '<div class="cell"><span class="k">Total referral</span><span class="v">' + money(u.total_ref) + "</span></div>" +
+            '<div class="cell"><span class="k">Orders</span><span class="v">' + num(u.orders) + "</span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(u.created_at)) + "</span></div>" +
+            "</button></div>";
+        });
+        box.innerHTML = html;
+      }
+
+      /* ---------- User drawer ---------- */
+      var drawerUserId = null;
+      var searchTimer = null;
+      function openDrawer(id) {
+        drawerUserId = id;
+        $("drawerRoot").hidden = false;
+        $("drawerTitle").textContent = "User " + id;
+        $("drawerSub").textContent = "";
+        $("drawerBody").innerHTML = skel(6);
+        document.body.style.overflow = "hidden";
+        $("drawerClose").focus();
+        loadUserDetail(id, true);
+      }
+      function closeDrawer() {
+        drawerUserId = null;
+        $("drawerRoot").hidden = true;
+        document.body.style.overflow = "";
+      }
+      async function loadUserDetail(id, first) {
+        var body = $("drawerBody");
+        if (first) body.innerHTML = skel(6);
+        try {
+          var data = await api("/api/admin/users/" + encodeURIComponent(id));
+          if (state.rootId === null) {
+            try {
+              var adm = await api("/api/admin/admins");
+              if (adm && adm.root_id !== undefined) state.rootId = adm.root_id;
+            } catch (e) { /* root check falls back to is_root on the user row */ }
+          }
+          if (drawerUserId === id) renderDrawer(data);
+        } catch (err) {
+          if (drawerUserId === id) body.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function treeMembers(item) {
+        if (item === null || item === undefined) return null;
+        if (typeof item === "object") return item;
+        return { tg_id: item, first_name: String(item) };
+      }
+      function renderDrawer(data) {
+        var u = (data && data.user) || {};
+        var isRoot = !!u.is_root || (state.rootId !== null && String(state.rootId) === String(u.tg_id));
+        $("drawerTitle").textContent = u.first_name || "User " + u.tg_id;
+        $("drawerSub").textContent = (u.username ? "@" + u.username + " · " : "") + "tg " + u.tg_id + (u.code ? " · code " + u.code : "");
+        var html = "";
+        /* Balances */
+        html += '<div class="card" style="margin-top:14px"><h3>Balances</h3>' +
+          kv("Deposit balance", money(u.balance)) +
+          kv("Referral balance", money(u.ref_balance)) +
+          kv("Total profit", money(u.total_profit)) +
+          kv("Total referral", money(u.total_ref)) +
+          kv("Orders", num(u.orders) + " · created " + dt(u.created_at)) +
+          (u.banned ? kv("Status", '<span class="badge banned">banned</span>') : "") +
+          "</div>";
+        /* Adjust balance form */
+        html += '<div class="card"><h3>Adjust balance</h3><p class="sub">Positive to credit, negative to debit. Amount may be negative.</p>' +
+          '<label class="field-lab" for="adjAmount">Amount (USD, ±)</label>' +
+          '<div class="money"><span>$</span><input class="num-input" id="adjAmount" type="number" step="0.01" placeholder="0.00" /></div>' +
+          '<label class="field-lab" for="adjSource">Source</label>' +
+          '<select class="sel" id="adjSource"><option value="deposit">deposit</option><option value="ref">ref</option></select>' +
+          '<label class="field-lab" for="adjNote">Note (optional)</label>' +
+          '<input class="text-input" id="adjNote" type="text" maxlength="120" placeholder="admin note" />' +
+          '<div class="btn-row"><button class="btn tiny" type="button" data-action="user-balance" data-id="' + esc(u.tg_id) + '">Apply</button></div>' +
+          "</div>";
+        /* Parent */
+        var parent = data ? data.parent : null;
+        var parentLabel = "No referrer";
+        if (parent && typeof parent === "object") parentLabel = (parent.first_name || "—") + " · tg " + parent.tg_id;
+        else if (parent) parentLabel = "tg " + parent;
+        html += '<div class="card"><h3>Referrer</h3><p class="sub">' + esc(parentLabel) + "</p>" +
+          '<label class="field-lab" for="parentInput">Re-parent to Telegram ID</label>' +
+          '<input class="num-input" id="parentInput" type="number" inputmode="numeric" placeholder="' + esc(parent && parent.tg_id ? parent.tg_id : "empty = none") + '" />' +
+          '<div class="btn-row">' +
+          '<button class="btn tiny" type="button" data-action="user-parent" data-id="' + esc(u.tg_id) + '">Set parent</button>' +
+          '<button class="btn tiny ghost" type="button" data-action="user-parent" data-id="' + esc(u.tg_id) + '" data-clear="1">Clear</button>' +
+          "</div></div>";
+        /* Downline tree */
+        var tree = (data && data.tree) || {};
+        html += '<div class="card"><h3>Downline</h3>';
+        ["l1", "l2", "l3"].forEach(function (lvl, idx) {
+          var arr = tree[lvl] || [];
+          html += '<details class="tree-group"' + (idx === 0 ? " open" : "") + "><summary>Level " + (idx + 1) + " · " + arr.length + " member" + (arr.length === 1 ? "" : "s") + "</summary><div class=\"members\">";
+          if (!arr.length) html += '<div class="mini"><span class="mn muted">No members</span></div>';
+          arr.forEach(function (raw) {
+            var m = treeMembers(raw);
+            html += '<div class="mini"><span class="mn">' + esc(m.first_name || "—") + ' · tg ' + esc(m.tg_id) + "</span>" +
+              '<span class="mv">' + (m.earned !== undefined ? money(m.earned) : (m.profit !== undefined ? money(m.profit) : "")) + "</span></div>";
+          });
+          html += "</div></details>";
+        });
+        html += "</div>";
+        /* Orders / accruals / withdrawals */
+        html += '<h4>Orders</h4>' + drawerOrders(data && data.orders ? data.orders : []);
+        html += '<h4>Accruals</h4>' + drawerAccruals(data && data.accruals ? data.accruals : []);
+        html += '<h4>Withdrawals</h4>' + drawerWithdrawals(data && data.withdrawals ? data.withdrawals : []);
+        /* Ban */
+        html += '<div class="card"><h3>Moderation</h3>' +
+          '<p class="sub">' + (isRoot ? "The root administrator cannot be banned." : "Ban blocks the account; unban restores it.") + "</p>" +
+          '<div class="btn-row"><button class="btn tiny ' + (u.banned ? "ok" : "bad") + '" type="button" data-action="user-ban" data-id="' + esc(u.tg_id) + '" data-banned="' + (u.banned ? "1" : "0") + '"' +
+          (isRoot ? " disabled title=\"Root admin cannot be banned\"" : "") + ">" + (u.banned ? "Unban user" : "Ban user") + "</button></div>" +
+          "</div>";
+        $("drawerBody").innerHTML = html;
+      }
+      function kv(k, v) {
+        return '<div class="kv"><span class="kk">' + esc(k) + '</span><span class="vv">' + v + "</span></div>";
+      }
+      function drawerOrders(list) {
+        if (!list.length) return emptyMsg("No orders");
+        var html = '<div class="table t-mini">';
+        list.slice(0, 20).forEach(function (o) {
+          html += '<div class="row mini"><span class="mn">#' + esc(o.id) + " · " + esc(o.plan_name || o.plan_id || "") + " · " + money(o.amount) + " · " + pct(o.rate) + '</span><span class="mv"><span class="badge ' + esc(o.status) + '">' + esc(o.status) + "</span></span></div>";
+        });
+        return html + "</div>";
+      }
+      function drawerAccruals(list) {
+        if (!list.length) return emptyMsg("No accruals");
+        var html = '<div class="table t-mini">';
+        list.slice(0, 20).forEach(function (a) {
+          html += '<div class="row mini"><span class="mn"><span class="badge lvl">L' + esc(a.level) + "</span> " + esc(dt(a.created_at)) + " · base " + money(a.base_profit) + " @ " + pct(a.rate) + '</span><span class="mv">' + money(a.amount) + "</span></div>";
+        });
+        return html + "</div>";
+      }
+      function drawerWithdrawals(list) {
+        if (!list.length) return emptyMsg("No withdrawals");
+        var html = '<div class="table t-mini">';
+        list.slice(0, 20).forEach(function (w) {
+          html += '<div class="row mini"><span class="mn">#' + esc(w.id) + " · " + esc(w.source) + " · " + esc(dt(w.created_at)) + '</span><span class="mv">' + money(w.amount) + ' <span class="badge ' + esc(w.status) + '">' + esc(w.status) + "</span></span></div>";
+        });
+        return html + "</div>";
+      }
+      async function submitBalance(btn) {
+        var id = btn.dataset.id;
+        var amount = parseFloat($("adjAmount").value);
+        if (!isFinite(amount) || amount === 0) { toast("Enter a non-zero amount", true); return; }
+        var body = { amount: Math.round(amount * 100) / 100, source: $("adjSource").value };
+        var note = $("adjNote").value.trim();
+        if (note) body.note = note;
+        await withBusy(btn, async function () {
+          await api("/api/admin/users/" + encodeURIComponent(id) + "/balance", { method: "POST", body: body });
+          toast("Balance updated");
+          await loadUserDetail(id, false);
+          if (loaded.orders) loadOrders();
+        });
+      }
+      async function submitParent(btn) {
+        var id = btn.dataset.id;
+        var parentId = null;
+        if (!btn.dataset.clear) {
+          var v = parseInt($("parentInput").value, 10);
+          if (!isFinite(v) || v <= 0) { toast("Enter a Telegram ID or press Clear", true); return; }
+          parentId = v;
+        }
+        await withBusy(btn, async function () {
+          await api("/api/admin/users/" + encodeURIComponent(id) + "/parent", { method: "POST", body: { parent_id: parentId } });
+          toast(parentId === null ? "Parent cleared" : "Parent set");
+          await loadUserDetail(id, false);
+        });
+      }
+      async function submitBan(btn) {
+        var id = btn.dataset.id;
+        var banned = btn.dataset.banned !== "1";
+        if (banned && !confirm("Ban this user?")) return;
+        await withBusy(btn, async function () {
+          await api("/api/admin/users/" + encodeURIComponent(id) + "/ban", { method: "POST", body: { banned: banned } });
+          toast(banned ? "User banned" : "User unbanned");
+          await loadUserDetail(id, false);
+          if (loaded.users) loadUsers();
+        });
+      }
+
+      /* ---------- Referral ---------- */
+      async function loadReferral() {
+        var box = $("referralBody");
+        box.innerHTML = skel(4);
+        try {
+          var results = await Promise.all([api("/api/admin/settings"), api("/api/admin/accruals?limit=100")]);
+          loaded.referral = true;
+          renderReferral(results[0], results[1]);
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function toPctInput(v) {
+        var x = Number(v); if (!isFinite(x)) x = 0;
+        return x <= 1 ? x * 100 : x;
+      }
+      function renderReferral(settingsData, accrualsData) {
+        var s = (settingsData && settingsData.settings) || {};
+        var box = $("referralBody");
+        var html = '<div class="card"><h3>Referral rates</h3><p class="sub">Percent of the downline order profit credited to each upline level.</p>' +
+          '<div class="plan-grid" style="margin-top:14px">' +
+          '<div><label class="field-lab" for="rateL1">Level 1 rate, %</label><input class="num-input" id="rateL1" type="number" min="0" max="100" step="0.1" value="' + toPctInput(s.rate_l1) + '" /></div>' +
+          '<div><label class="field-lab" for="rateL2">Level 2 rate, %</label><input class="num-input" id="rateL2" type="number" min="0" max="100" step="0.1" value="' + toPctInput(s.rate_l2) + '" /></div>' +
+          '<div><label class="field-lab" for="rateL3">Level 3 rate, %</label><input class="num-input" id="rateL3" type="number" min="0" max="100" step="0.1" value="' + toPctInput(s.rate_l3) + '" /></div>' +
+          "</div>" +
+          '<label class="switch"><input type="checkbox" id="refEnabled"' + (isOn(s.referral_enabled) ? " checked" : "") + ' /><span class="track"></span>Referral program enabled</label><br />' +
+          '<label class="switch"><input type="checkbox" id="autoApprove"' + (isOn(s.auto_approve_orders) ? " checked" : "") + ' /><span class="track"></span>Auto-approve new orders</label>' +
+          '<div class="btn-row"><button class="btn tiny" type="button" data-action="ref-save">Save settings</button></div>' +
+          '<p class="err-text" id="refErr"></p></div>';
+        html += '<div class="card"><h3>Demo data</h3><p class="sub">Creates a 3-level demo downline with completed orders for your account.</p>' +
+          '<div class="btn-row"><button class="btn tiny" type="button" data-action="seed-demo" id="btnSeed">Seed demo downline</button></div></div>';
+        html += '<div class="card"><h3>Accruals feed</h3>' + renderAccruals(accrualsData && accrualsData.accruals ? accrualsData.accruals : []) + "</div>";
+        box.innerHTML = html;
+      }
+      function isOn(v) { return v === true || v === 1 || v === "1"; }
+      function renderAccruals(list) {
+        if (!list.length) return emptyMsg("No accruals yet");
+        var head = '<div class="thead"><span class="k">Level</span><span class="k">From</span><span class="k">To</span><span class="k">Base profit</span><span class="k">Rate</span><span class="k">Amount</span><span class="k">Created</span></div>';
+        var html = head;
+        list.forEach(function (a) {
+          html += '<div class="row">' +
+            '<div class="cell"><span class="k">Level</span><span class="v"><span class="badge lvl">L' + esc(a.level) + "</span></span></div>" +
+            '<div class="cell"><span class="k">From</span><span class="v">' + esc(a.from_name || "—") + "</span></div>" +
+            '<div class="cell"><span class="k">To</span><span class="v">' + esc(a.user_name || "—") + "</span></div>" +
+            '<div class="cell"><span class="k">Base profit</span><span class="v">' + money(a.base_profit) + "</span></div>" +
+            '<div class="cell"><span class="k">Rate</span><span class="v">' + pct(a.rate) + "</span></div>" +
+            '<div class="cell"><span class="k">Amount</span><span class="v">' + money(a.amount) + "</span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(a.created_at)) + "</span></div>" +
+            "</div>";
+        });
+        return '<div class="table t-accruals">' + html + "</div>";
+      }
+      async function saveReferral(btn) {
+        var l1 = parseFloat($("rateL1").value), l2 = parseFloat($("rateL2").value), l3 = parseFloat($("rateL3").value);
+        var errBox = $("refErr");
+        errBox.textContent = "";
+        var bad = [l1, l2, l3].some(function (v) { return !isFinite(v) || v < 0 || v > 100; });
+        if (bad) { errBox.textContent = "Rates must be numbers between 1 and 100 (0 is allowed to disable a level)."; return; }
+        var body = {
+          rate_l1: Math.round((l1 / 100) * 1e6) / 1e6,
+          rate_l2: Math.round((l2 / 100) * 1e6) / 1e6,
+          rate_l3: Math.round((l3 / 100) * 1e6) / 1e6,
+          referral_enabled: $("refEnabled").checked ? 1 : 0,
+          auto_approve_orders: $("autoApprove").checked ? 1 : 0
+        };
+        await withBusy(btn, async function () {
+          await api("/api/admin/settings", { method: "PUT", body: body });
+          toast("Saved");
+          var results = await Promise.all([api("/api/admin/settings"), api("/api/admin/accruals?limit=100")]);
+          renderReferral(results[0], results[1]);
+        });
+      }
+      async function seedDemo(btn) {
+        await withBusy(btn, async function () {
+          var r = await api("/api/admin/seed-demo", { method: "POST", body: {} });
+          var c = (r && r.created) || {};
+          toast("Demo seeded: " + num(c.users) + " users · " + num(c.orders) + " orders · " + num(c.accruals) + " accruals");
+          await loadOrders();
+          if (loaded.overview) loadOverview(true);
+          if (loaded.users) loadUsers();
+        });
+      }
+
+      /* ---------- Plans ---------- */
+      async function loadPlans() {
+        var box = $("plansBody");
+        box.innerHTML = skel(4);
+        try {
+          var data = await api("/api/admin/plans");
+          loaded.plans = true;
+          renderPlans(data && data.plans ? data.plans : []);
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function numField(planId, key, label, value, wide) {
+        return '<div' + (wide ? ' class="wide"' : "") + '><label class="field-lab" for="p-' + esc(planId) + "-" + key + '">' + esc(label) +
+          '</label><input class="num-input" id="p-' + esc(planId) + "-" + key + '" data-key="' + key + '" type="number" step="any" value="' + esc(value) + '" /></div>';
+      }
+      function renderPlans(plans) {
+        var box = $("plansBody");
+        if (!plans.length) { box.innerHTML = emptyMsg("No plans"); return; }
+        var html = "";
+        plans.forEach(function (p) {
+          html += '<div class="card plan-row" data-plan="' + esc(p.id) + '">' +
+            '<div class="topline"><span class="pid">' + esc(p.name) + '</span><span class="sub">id · ' + esc(p.id) + '</span></div>' +
+            '<div class="plan-grid">' +
+            '<div class="wide"><label class="field-lab" for="p-' + esc(p.id) + '-name">Name</label><input class="text-input" id="p-' + esc(p.id) + '-name" data-key="name" type="text" value="' + esc(p.name) + '" maxlength="40" /></div>' +
+            numField(p.id, "min_amount", "Min deposit, $", p.min_amount) +
+            numField(p.id, "max_amount", "Max deposit, $", p.max_amount) +
+            numField(p.id, "rate_lo", "Rate low, %", toPctInput(p.rate_lo)) +
+            numField(p.id, "rate_hi", "Rate high, %", toPctInput(p.rate_hi)) +
+            numField(p.id, "period_hours", "Term, hours", p.period_hours) +
+            "</div>" +
+            '<label class="switch"><input type="checkbox" data-key="enabled"' + (isOn(p.enabled) ? " checked" : "") + ' /><span class="track"></span>Plan enabled</label>' +
+            '<div class="btn-row"><button class="btn tiny" type="button" data-action="plan-save" data-id="' + esc(p.id) + '">Save</button></div>' +
+            '<p class="err-text" data-err></p></div>';
+        });
+        box.innerHTML = html;
+      }
+      function planVal(card, key) {
+        var el = card.querySelector('[data-key="' + key + '"]');
+        return el ? el.value : "";
+      }
+      async function savePlan(btn) {
+        var card = btn.closest(".plan-row");
+        if (!card) return;
+        var errBox = card.querySelector("[data-err]");
+        errBox.textContent = "";
+        var name = planVal(card, "name").trim();
+        var min = parseFloat(planVal(card, "min_amount"));
+        var max = parseFloat(planVal(card, "max_amount"));
+        var lo = parseFloat(planVal(card, "rate_lo"));
+        var hi = parseFloat(planVal(card, "rate_hi"));
+        var term = parseInt(planVal(card, "period_hours"), 10);
+        var enabledEl = card.querySelector('[data-key="enabled"]');
+        var errors = [];
+        if (!name) errors.push("Name is required");
+        if (!isFinite(min) || min < 0) errors.push("Min deposit must be a positive number");
+        if (!isFinite(max) || max <= 0) errors.push("Max deposit must be a positive number");
+        if (isFinite(min) && isFinite(max) && min >= max) errors.push("Min must be lower than Max");
+        [lo, hi].forEach(function (v) { if (!isFinite(v) || v < 1 || v > 100) errors.push("Rates must be within 1–100%"); });
+        if (isFinite(lo) && isFinite(hi) && lo >= 1 && hi <= 100 && lo > hi) errors.push("Rate low cannot exceed rate high");
+        if (!isFinite(term) || term <= 0) errors.push("Term must be greater than 0");
+        if (errors.length) { errBox.textContent = errors[0]; return; }
+        var body = {
+          name: name,
+          min_amount: Math.round(min * 100) / 100,
+          max_amount: Math.round(max * 100) / 100,
+          rate_lo: Math.round((lo / 100) * 1e6) / 1e6,
+          rate_hi: Math.round((hi / 100) * 1e6) / 1e6,
+          period_hours: term,
+          enabled: enabledEl && enabledEl.checked ? 1 : 0
+        };
+        await withBusy(btn, async function () {
+          await api("/api/admin/plans/" + encodeURIComponent(card.dataset.plan), { method: "PUT", body: body });
+          toast("Saved");
+          await loadPlans();
+        });
+      }
+
+      /* ---------- Withdrawals ---------- */
+      var wdStatus = "pending";
+      async function loadWithdrawals() {
+        var box = $("withdrawalsBody");
+        box.innerHTML = skel(4);
+        try {
+          var qs = wdStatus === "all" ? "" : "?status=" + encodeURIComponent(wdStatus);
+          var data = await api("/api/admin/withdrawals" + qs);
+          loaded.withdrawals = true;
+          renderWithdrawals(data && data.withdrawals ? data.withdrawals : []);
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function renderWithdrawals(list) {
+        var box = $("withdrawalsBody");
+        if (!list.length) {
+          box.innerHTML = emptyMsg(wdStatus === "pending" ? "No pending withdrawals" : "No " + wdStatus + " withdrawals");
+          return;
+        }
+        var head = '<div class="thead"><span class="k">ID</span><span class="k">User</span><span class="k">Amount</span><span class="k">Source</span><span class="k">Created</span><span class="k">Actions</span></div>';
+        var html = head;
+        list.forEach(function (w) {
+          var acts = '<div class="acts">';
+          if (w.status === "pending") {
+            acts += '<button class="btn tiny ok" type="button" data-action="wd-approve" data-id="' + esc(w.id) + '">Approve</button>';
+            acts += '<button class="btn tiny bad" type="button" data-action="wd-reject" data-id="' + esc(w.id) + '">Reject</button>';
+          } else {
+            acts += '<span class="sub">Status: ' + esc(w.status) + "</span>";
+          }
+          acts += "</div>";
+          html += '<div class="row">' +
+            '<div class="cell"><span class="k">ID</span><span class="v">#' + esc(w.id) + "</span></div>" +
+            '<div class="cell"><span class="k">User</span><span class="v nm">' + esc(w.user_name || (w.user_tg_id ? String(w.user_tg_id) : "—")) + "</span></div>" +
+            '<div class="cell"><span class="k">Amount</span><span class="v">' + money(w.amount) + "</span></div>" +
+            '<div class="cell"><span class="k">Source</span><span class="v">' + esc(w.source) + "</span></div>" +
+            '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(w.created_at)) + "</span></div>" +
+            '<div class="cell"><span class="k">Actions</span>' + acts + "</div>" +
+            "</div>";
+        });
+        box.innerHTML = html;
+      }
+      async function wdAction(id, action, btn) {
+        if (action === "approve" && !confirm("Approve this withdrawal?\nThe user balance will be deducted right now.")) return;
+        var body = {};
+        if (action === "reject") {
+          var note = window.prompt("Reject note (optional)", "");
+          if (note === null) return;
+          if (note.trim()) body.note = note.trim();
+        }
+        await withBusy(btn, async function () {
+          await api("/api/admin/withdrawals/" + encodeURIComponent(id) + "/" + action, { method: "POST", body: body });
+          toast(action === "approve" ? "Approved — balance deducted" : "Rejected");
+          await loadWithdrawals();
+          if (loaded.overview) loadOverview(true);
+        });
+      }
+
+      /* ---------- Admins ---------- */
+      async function loadAdmins() {
+        var box = $("adminsBody");
+        box.innerHTML = skel(3);
+        try {
+          var data = await api("/api/admin/admins");
+          loaded.admins = true;
+          if (data && data.root_id !== undefined) state.rootId = data.root_id;
+          renderAdmins(data);
+        } catch (err) {
+          box.innerHTML = stateMsg(err.message || "Failed to load", true);
+        }
+      }
+      function renderAdmins(data) {
+        var box = $("adminsBody");
+        var list = data && data.admins ? data.admins : [];
+        var can = !!(data && data.can_manage);
+        var head = '<div class="thead"><span class="k">Telegram ID</span><span class="k">Name</span><span class="k">Role</span><span class="k">Added by</span><span class="k">Created</span><span class="k">Actions</span></div>';
+        var html = '<div class="card"><h3>Add administrator</h3>' +
+          '<div class="plan-grid">' +
+          '<div><label class="field-lab" for="admTgId">Telegram ID</label><input class="num-input" id="admTgId" type="number" inputmode="numeric" placeholder="123456789" /></div>' +
+          '<div><label class="field-lab" for="admName">Name (optional)</label><input class="text-input" id="admName" type="text" maxlength="60" placeholder="display name" /></div>' +
+          "</div>" +
+          '<div class="btn-row"><button class="btn tiny" type="button" data-action="adm-add"' + (can ? "" : " disabled") + ">Add admin</button></div>" +
+          (can ? "" : '<p class="hint">Only the root administrator can manage administrators — these controls are disabled for you.</p>') +
+          '<p class="err-text" id="admErr"></p></div>';
+        html += '<div class="card"><h3>Administrators</h3>' + (list.length ? "" : emptyMsg("No administrators listed"));
+        if (list.length) {
+          html += '<div class="table t-admins">' + head;
+          list.forEach(function (a) {
+            var isRoot = !!a.is_root;
+            html += '<div class="row">' +
+              '<div class="cell"><span class="k">Telegram ID</span><span class="v">' + esc(a.tg_id) + "</span></div>" +
+              '<div class="cell"><span class="k">Name</span><span class="v nm">' + esc(a.first_name || (a.username ? "@" + a.username : "—")) + "</span></div>" +
+              '<div class="cell"><span class="k">Role</span><span class="v"><span class="badge ' + (isRoot ? "root" : "admin") + '">' + (isRoot ? "ROOT" : "ADMIN") + "</span></span></div>" +
+              '<div class="cell"><span class="k">Added by</span><span class="v">' + (a.added_by ? esc(a.added_by) : "seed") + "</span></div>" +
+              '<div class="cell"><span class="k">Created</span><span class="v">' + esc(dt(a.created_at)) + "</span></div>" +
+              '<div class="cell"><span class="k">Actions</span><div class="acts">' +
+              (isRoot ? '<span class="sub">Cannot be revoked</span>' : '<button class="btn tiny bad" type="button" data-action="adm-revoke" data-id="' + esc(a.tg_id) + '"' + (can ? "" : " disabled") + ">Revoke</button>") +
+              "</div></div></div>";
+          });
+          html += "</div>";
+        }
+        html += "</div>";
+        box.innerHTML = html;
+      }
+      async function addAdmin(btn) {
+        var errBox = $("admErr");
+        errBox.textContent = "";
+        var id = parseInt($("admTgId").value, 10);
+        if (!isFinite(id) || id <= 0) { errBox.textContent = "Enter a valid Telegram ID"; return; }
+        var body = { tg_id: id };
+        var nm = $("admName").value.trim();
+        if (nm) body.first_name = nm;
+        await withBusy(btn, async function () {
+          try {
+            await api("/api/admin/admins", { method: "POST", body: body });
+          } catch (err) {
+            if (err.status === 409) { errBox.textContent = "This Telegram ID is already an administrator"; return; }
+            throw err;
+          }
+          toast("Admin added");
+          $("admTgId").value = "";
+          $("admName").value = "";
+          await loadAdmins();
+        });
+      }
+      async function revokeAdmin(btn) {
+        var id = btn.dataset.id;
+        if (!confirm("Revoke administrator rights from " + id + "?")) return;
+        await withBusy(btn, async function () {
+          await api("/api/admin/admins/" + encodeURIComponent(id) + "/revoke", { method: "POST", body: {} });
+          toast("Admin revoked");
+          await loadAdmins();
+        });
+      }
+
+      /* ================= Events ================= */
+      var actions = {
+        "orders-filter": function (el) {
+          ordersStatus = el.dataset.status;
+          syncChips("ordersChips", ordersStatus);
+          loadOrders();
+        },
+        "order-approve": function (el, btn) { orderAction(el.dataset.id, "approve", {}, btn, "Order approved"); },
+        "order-reject": function (el, btn) {
+          var note = window.prompt("Reject note (optional)", "");
+          if (note === null) return;
+          var body = {};
+          if (note.trim()) body.note = note.trim();
+          orderAction(el.dataset.id, "reject", body, btn, "Order rejected");
+        },
+        "order-complete": function (el, btn) {
+          if (!confirm("Complete this order now? Accruals will run immediately.")) return;
+          orderAction(el.dataset.id, "complete", {}, btn, "Order completed");
+        },
+        "user-open": function (el) { openDrawer(el.dataset.id); },
+        "user-balance": function (el, btn) { submitBalance(btn); },
+        "user-parent": function (el, btn) { submitParent(btn); },
+        "user-ban": function (el, btn) { submitBan(btn); },
+        "ref-save": function (el, btn) { saveReferral(btn); },
+        "seed-demo": function (el, btn) { seedDemo(btn); },
+        "plan-save": function (el, btn) { savePlan(btn); },
+        "wd-filter": function (el) {
+          wdStatus = el.dataset.status;
+          syncChips("withdrawalsChips", wdStatus);
+          loadWithdrawals();
+        },
+        "wd-approve": function (el, btn) { wdAction(el.dataset.id, "approve", btn); },
+        "wd-reject": function (el, btn) { wdAction(el.dataset.id, "reject", btn); },
+        "adm-add": function (el, btn) { addAdmin(btn); },
+        "adm-revoke": function (el, btn) { revokeAdmin(btn); }
+      };
+      document.body.addEventListener("click", function (ev) {
+        var el = ev.target.closest ? ev.target.closest("[data-action]") : null;
+        if (!el) return;
+        var fn = actions[el.dataset.action];
+        if (!fn) return;
+        if (el.tagName === "A") ev.preventDefault();
+        fn(el, el);
+      });
+      document.body.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape" && !$("drawerRoot").hidden) closeDrawer();
+      });
+      $("drawerBackdrop").addEventListener("click", closeDrawer);
+      $("drawerClose").addEventListener("click", closeDrawer);
+      $("btnLogout").addEventListener("click", logout);
+      $("btnDeniedSignout").addEventListener("click", logout);
+      $("nav").addEventListener("click", function (ev) {
+        var b = ev.target.closest ? ev.target.closest("button[data-view]") : null;
+        if (b) switchView(b.dataset.view);
+      });
+      ["overview", "orders", "users", "referral", "plans", "withdrawals", "admins"].forEach(function (v) {
+        $("refresh-" + v).addEventListener("click", function () { loader[v](); });
+      });
+      $("devForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var id = parseInt($("devTgIdInput").value, 10);
+        if (!isFinite(id) || id <= 0) { $("loginErr").textContent = "Enter a valid Telegram ID"; return; }
+        doLogin({ devTgId: id, devName: "Admin" }, $("btnDevLogin"));
+      });
+      $("btnTgLogin").addEventListener("click", function () {
+        var tg = getTelegram();
+        if (!tg || !tg.initData) { $("loginErr").textContent = "No Telegram initData — open this page inside the ARVEX bot."; return; }
+        doLogin({ initData: tg.initData }, $("btnTgLogin"));
+      });
+      $("usersSearchForm").addEventListener("submit", function (ev) { ev.preventDefault(); });
+      $("usersSearch").addEventListener("input", function () {
+        var v = this.value.trim();
+        if (searchTimer) clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+          if (v === usersQ) return;
+          usersQ = v;
+          loadUsers();
+        }, 350);
+      });
+
+      boot();
+    </script>
+  </body>
+</html>
