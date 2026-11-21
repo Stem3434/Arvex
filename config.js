@@ -89,7 +89,9 @@ const BOT_TOKEN = str('BOT_TOKEN', '');
 const ROOT_ADMIN_ID = str('ROOT_ADMIN_ID', '');
 const rootAdminTgId = /^\d+$/.test(ROOT_ADMIN_ID) ? Number(ROOT_ADMIN_ID) : null;
 const SESSION_TTL_HOURS = int('SESSION_TTL_HOURS', 720);
-
+const ADMIN_LOGIN = str('ADMIN_LOGIN', '');
+const ADMIN_PASSWORD = str('ADMIN_PASSWORD', '');
+const ADMIN_PASSWORD_SALT = str('ADMIN_PASSWORD_SALT', '');
 const config = {
   ROOT_DIR,
   PUBLIC_DIR,
@@ -103,6 +105,9 @@ const config = {
   ROOT_ADMIN_ID: rootAdminTgId === null ? '' : String(rootAdminTgId),
   /** Same value as a safe integer, or null when unset/invalid. */
   ROOT_ADMIN_TG_ID: rootAdminTgId,
+  ADMIN_LOGIN,
+ADMIN_PASSWORD,
+ADMIN_PASSWORD_SALT,
   DATABASE_FILE: resolveFile(str('DATABASE_FILE', './data/arvex.sqlite')),
   AUTO_APPROVE_ORDERS: bool('AUTO_APPROVE_ORDERS', true),
   INVITE_BOT_USERNAME: str('INVITE_BOT_USERNAME', 'arvex_trading_bot'),
