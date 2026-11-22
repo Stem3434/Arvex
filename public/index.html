@@ -2262,7 +2262,7 @@
           inviteCodeRow.hidden = false;
           inviteCodeInput.value = inviteCode;
         }
-        function inviteLink(){ return 'https://t.me/arvex_trading_bot?start=ref_' + inviteCode; }
+        function inviteLink(){ return 'https://t.me/' + BOT_USERNAME + '?start=ref_' + inviteCode; }
         function renderInvite(){
           inviteLinkEl.textContent = inviteLink();
           inviteQrWrap.hidden = false;
