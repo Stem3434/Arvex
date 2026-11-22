@@ -110,7 +110,7 @@ ADMIN_PASSWORD,
 ADMIN_PASSWORD_SALT,
   DATABASE_FILE: resolveFile(str('DATABASE_FILE', './data/arvex.sqlite')),
   AUTO_APPROVE_ORDERS: bool('AUTO_APPROVE_ORDERS', true),
-  INVITE_BOT_USERNAME: str('INVITE_BOT_USERNAME', 'arvex_trading_bot'),
+  INVITE_BOT_USERNAME: str('INVITE_BOT_USERNAME', 'ArvexCapitalOfficialBot')
   SESSION_TTL_HOURS: SESSION_TTL_HOURS > 0 ? SESSION_TTL_HOURS : 720,
   SESSION_TTL_MS: (SESSION_TTL_HOURS > 0 ? SESSION_TTL_HOURS : 720) * 3600 * 1000,
   /** true when no BOT_TOKEN is configured → dev mode, initData not verified. */
